@@ -1,0 +1,16 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+    "ms-vscode.vscode-typescript-next",
+    "ritwickdey.liveserver",
+    "ckolkman.vscode-postgres",
+    "mtxr.sqltools",
+    "humao.rest-client",
+    "PKief.material-icon-theme",
+    "eamodio.gitlens"
+  ]
+}
