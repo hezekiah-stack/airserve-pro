@@ -47,7 +47,22 @@ app.use((err, req, res, next) => {
 
 // ─── Start Server ─────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`✅ AirServe Pro API running on http://localhost:${PORT}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV||'development'}`);
-});
+
+const startServer = async () => {
+  try {
+    // Run migrations on startup
+    const migrate = require('../database/migrate');
+    await migrate();
+    console.log('✅ Database migrations completed');
+  } catch (err) {
+    console.error('⚠️ Migration error:', err.message);
+  }
+  
+  app.listen(PORT, () => {
+    console.log(`✅ AirServe Pro API running on http://localhost:${PORT}`);
+    console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+  });
+};
+
+startServer();
+But first — paste your database/migrate.js file here so I can check if it exports a function properly! 📋
