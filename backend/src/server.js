@@ -50,12 +50,14 @@ const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
   try {
-    // Run migrations on startup
+    console.log('🔄 Starting database migration...');
     const migrate = require('../database/migrate');
+    console.log('✅ Migrate module loaded:', typeof migrate);
     await migrate();
     console.log('✅ Database migrations completed');
   } catch (err) {
     console.error('⚠️ Migration error:', err.message);
+    console.error(err.stack);
   }
   
   app.listen(PORT, () => {
@@ -63,6 +65,3 @@ const startServer = async () => {
     console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   });
 };
-
-startServer();
-But first — paste your database/migrate.js file here so I can check if it exports a function properly! 📋
