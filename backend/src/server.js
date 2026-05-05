@@ -65,3 +65,4 @@ const startServer = async () => {
     console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   });
 };
+startServer();
