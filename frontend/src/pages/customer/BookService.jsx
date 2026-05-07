@@ -6,7 +6,13 @@ import '../../styles/pages.css';
 
 const STEPS = ['Service', 'Diagnostics', 'Schedule', 'Payment', 'Confirm'];
 
-const AC_TYPES    = ['Window Type', 'Split Type', 'Inverter AC', 'Portable AC', 'Central AC'];
+const AC_TYPES = [
+  { label: 'Window Type', value: 'window' },
+  { label: 'Split Type', value: 'split' },
+  { label: 'Inverter AC', value: 'inverter' },
+  { label: 'Portable AC', value: 'portable' },
+  { label: 'Central AC', value: 'central' },
+];
 const PROBLEMS    = ['Not cooling', 'Leaking water', 'Strange noise', 'Bad smell', 'Not turning on', 'Routine only'];
 const YEARS_OWNED = ['Less than 1 year', '1–3 years', '3–5 years', '5+ years', 'New unit'];
 const LOCATIONS   = ['Residential (Home)', 'Office', 'Commercial Building'];
@@ -129,9 +135,9 @@ export default function BookService() {
           <div className="card" style={{ marginBottom: '1rem' }}>
             <div className="card-title">1. What type of air conditioner do you have?</div>
             <div className="diag-opts">
-              {AC_TYPES.map(t => (
+             {AC_TYPES.map(t => (
                 <div key={t} className={`diag-opt${diag.ac_type === t ? ' selected' : ''}`}
-                  onClick={() => setDiag({ ...diag, ac_type: t })}>{t}</div>
+                onClick={() => setDiag({ ...diag, ac_type: t })}>{t}</div>
               ))}
             </div>
           </div>
