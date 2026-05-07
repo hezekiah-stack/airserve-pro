@@ -20,9 +20,9 @@ const PAYMONGO_BASE = 'https://api.paymongo.com/v1';
 // Base64 encode the secret key (PayMongo uses HTTP Basic Auth)
 const getAuthHeader = () => {
   const key = process.env.PAYMONGO_SECRET_KEY;
+  console.log('PayMongo key exists:', !!key, 'Length:', key?.length);
   return 'Basic ' + Buffer.from(key + ':').toString('base64');
 };
-
 /**
  * Create a PaymentIntent
  * Used for card payments (attach method separately)
