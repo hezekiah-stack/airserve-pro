@@ -66,7 +66,7 @@ const startServer = async () => {
     console.error(err.stack);
   }
   
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ AirServe Pro API running on http://localhost:${PORT}`);
     console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   });
