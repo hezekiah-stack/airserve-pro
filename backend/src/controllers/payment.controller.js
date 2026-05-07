@@ -24,12 +24,15 @@ const createGCashPayment = async (req, res) => {
     const redirectFailed  = `${process.env.FRONTEND_URL}/payment/failed?booking=${booking_id}`;
 
     // Create GCash source via PayMongo
-    const source = await paymongoService.createGCashSource({
-      amount,
-      description: `AirServe Pro - Booking #${booking.booking_code}`,
-      bookingId: booking_id,
-      redirectSuccess,
-      redirectFailed,
+   const source = await paymongoService.createGCashSource({
+  amount,
+  description: `AirServe Pro - Booking #${booking.booking_code}`,
+  bookingId: booking_id,
+  redirectSuccess,
+  redirectFailed,
+  customerEmail: req.user.email,
+  customerName: req.user.full_name,
+});
     });
 
     // Save pending payment record in DB
