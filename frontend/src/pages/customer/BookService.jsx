@@ -15,7 +15,11 @@ const AC_TYPES = [
 ];
 const PROBLEMS    = ['Not cooling', 'Leaking water', 'Strange noise', 'Bad smell', 'Not turning on', 'Routine only'];
 const YEARS_OWNED = ['Less than 1 year', '1–3 years', '3–5 years', '5+ years', 'New unit'];
-const LOCATIONS   = ['Residential (Home)', 'Office', 'Commercial Building'];
+const LOCATIONS = [
+  { label: 'Residential (Home)', value: 'residential' },
+  { label: 'Office', value: 'office' },
+  { label: 'Commercial Building', value: 'commercial' },
+];
 
 export default function BookService() {
   const [step, setStep]         = useState(1);
@@ -167,7 +171,7 @@ export default function BookService() {
                 <select className="form-control" value={diag.location_type}
                   onChange={e => setDiag({ ...diag, location_type: e.target.value })}>
                   <option value="">Select...</option>
-                  {LOCATIONS.map(l => <option key={l}>{l}</option>)}
+                 {LOCATIONS.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
                 </select>
               </div>
             </div>
