@@ -135,10 +135,10 @@ export default function BookService() {
           <div className="card" style={{ marginBottom: '1rem' }}>
             <div className="card-title">1. What type of air conditioner do you have?</div>
             <div className="diag-opts">
-             {AC_TYPES.map(t => (
-                <div key={t} className={`diag-opt${diag.ac_type === t ? ' selected' : ''}`}
-                onClick={() => setDiag({ ...diag, ac_type: t })}>{t}</div>
-              ))}
+            {AC_TYPES.map(t => (
+  <div key={t.value} className={`diag-opt${diag.ac_type === t.value ? ' selected' : ''}`}
+  onClick={() => setDiag({ ...diag, ac_type: t.value })}>{t.label}</div>
+))}
             </div>
           </div>
 
