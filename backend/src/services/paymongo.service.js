@@ -109,7 +109,38 @@ const attachPaymentMethod = async ({ paymentIntentId, paymentMethodId, returnUrl
  * Recommended for GCash payments
  */
 const createGCashSource = async ({ amount, currency = 'PHP', description, bookingId, redirectSuccess, redirectFailed }) => {
-  const response = await axios.post(
+  try {
+    const response = await axios.post(
+      `${PAYMONGO_BASE}/sources`,
+      {
+        data: {
+          attributes: {
+            amount: Math.round(amount * 100),
+            currency,
+            type: 'gcash',
+            description,
+            redirect: {
+              success: redirectSuccess,
+              failed: redirectFailed,
+            },
+            metadata: { booking_id: String(bookingId) },
+            billing: { name: 'AirServe Pro Customer', email: 'customer@airserve.com', phone: '09171234567' },
+          },
+        },
+      },
+      {
+        headers: {
+          Authorization: getAuthHeader(),
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data.data;
+  } catch (err) {
+    console.error('PayMongo GCash full error:', JSON.stringify(err.response?.data, null, 2));
+    throw err;
+  }
+};
     `${PAYMONGO_BASE}/sources`,
     {
       data: {
