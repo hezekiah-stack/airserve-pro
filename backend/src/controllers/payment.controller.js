@@ -1,16 +1,10 @@
 const db = require('../config/db');
 const paymongoService = require('../services/paymongo.service');
 
-/**
- * POST /api/payments/gcash/create
- * Creates a GCash payment source and returns the redirect URL.
- * Customer is redirected to GCash to complete payment.
- */
 const createGCashPayment = async (req, res) => {
   try {
     const { booking_id, amount } = req.body;
 
-    // Verify booking belongs to this customer
     const [bookings] = await db.query(
       'SELECT * FROM service_requests WHERE id = ? AND customer_id = ?',
       [booking_id, req.user.id]
@@ -23,19 +17,16 @@ const createGCashPayment = async (req, res) => {
     const redirectSuccess = `${process.env.FRONTEND_URL}/payment/success?booking=${booking_id}`;
     const redirectFailed  = `${process.env.FRONTEND_URL}/payment/failed?booking=${booking_id}`;
 
-    // Create GCash source via PayMongo
-   const source = await paymongoService.createGCashSource({
-  amount,
-  description: `AirServe Pro - Booking #${booking.booking_code}`,
-  bookingId: booking_id,
-  redirectSuccess,
-  redirectFailed,
-  customerEmail: req.user.email,
-  customerName: req.user.full_name,
-});
+    const source = await paymongoService.createGCashSource({
+      amount,
+      description: `AirServe Pro - Booking #${booking.booking_code}`,
+      bookingId: booking_id,
+      redirectSuccess,
+      redirectFailed,
+      customerEmail: req.user.email,
+      customerName: req.user.full_name,
     });
 
-    // Save pending payment record in DB
     await db.query(
       `INSERT INTO payments (booking_id, customer_id, amount, currency, method, status, paymongo_source_id, paymongo_checkout_url)
        VALUES (?, ?, ?, 'PHP', 'gcash', 'pending', ?, ?)`,
@@ -53,10 +44,6 @@ const createGCashPayment = async (req, res) => {
   }
 };
 
-/**
- * POST /api/payments/card/create
- * Creates a PaymentIntent + attaches card payment method.
- */
 const createCardPayment = async (req, res) => {
   try {
     const { booking_id, amount, billing, card } = req.body;
@@ -70,17 +57,14 @@ const createCardPayment = async (req, res) => {
     }
     const booking = bookings[0];
 
-    // Step 1: Create PaymentIntent
     const intent = await paymongoService.createPaymentIntent({
       amount,
       description: `AirServe Pro - Booking #${booking.booking_code}`,
       metadata: { booking_id: String(booking_id), customer_id: String(req.user.id) },
     });
 
-    // Step 2: Create PaymentMethod (card)
     const method = await paymongoService.createPaymentMethod({ type: 'card', billing, card });
 
-    // Step 3: Attach method to intent
     const returnUrl = `${process.env.FRONTEND_URL}/payment/success?booking=${booking_id}`;
     const attached = await paymongoService.attachPaymentMethod({
       paymentIntentId: intent.id,
@@ -90,14 +74,12 @@ const createCardPayment = async (req, res) => {
 
     const status = attached.attributes.status;
 
-    // Save payment record
     await db.query(
       `INSERT INTO payments (booking_id, customer_id, amount, currency, method, status, paymongo_intent_id)
        VALUES (?, ?, ?, 'PHP', 'card', ?, ?)`,
       [booking_id, req.user.id, amount, status === 'succeeded' ? 'paid' : 'pending', intent.id]
     );
 
-    // If 3D Secure required
     if (status === 'awaiting_next_action') {
       return res.json({
         success: true,
@@ -120,17 +102,11 @@ const createCardPayment = async (req, res) => {
   }
 };
 
-/**
- * POST /api/payments/webhook
- * PayMongo calls this URL when payment events happen.
- * Set webhook URL in PayMongo dashboard: https://yourserver.com/api/payments/webhook
- */
 const handleWebhook = async (req, res) => {
   try {
     const signature = req.headers['paymongo-signature'];
     const rawBody   = JSON.stringify(req.body);
 
-    // Verify signature
     const isValid = paymongoService.verifyWebhookSignature(
       rawBody,
       signature,
@@ -147,7 +123,6 @@ const handleWebhook = async (req, res) => {
     console.log('PayMongo Webhook:', type);
 
     if (type === 'source.chargeable') {
-      // GCash source is now chargeable — create the actual payment charge
       const sourceId  = data.id;
       const amount    = data.attributes.amount;
       const currency  = data.attributes.currency;
@@ -161,7 +136,6 @@ const handleWebhook = async (req, res) => {
         metadata: { booking_id: bookingId },
       });
 
-      // Update DB
       await db.query(
         'UPDATE payments SET status = ?, paymongo_payment_id = ? WHERE paymongo_source_id = ?',
         ['paid', payment.id, sourceId]
@@ -199,10 +173,6 @@ const handleWebhook = async (req, res) => {
   }
 };
 
-/**
- * GET /api/payments/booking/:bookingId
- * Get payment details for a booking
- */
 const getPaymentByBooking = async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -215,9 +185,6 @@ const getPaymentByBooking = async (req, res) => {
   }
 };
 
-/**
- * GET /api/payments (Admin only)
- */
 const getAllPayments = async (req, res) => {
   try {
     const [rows] = await db.query(`
