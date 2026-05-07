@@ -39,7 +39,7 @@ const createGCashPayment = async (req, res) => {
       source_id: source.id,
     });
   } catch (err) {
-    console.error('GCash payment error:', err.response?.data || err.message);
+    console.error('GCash payment error FULL:', JSON.stringify(err.response?.data || err.message, null, 2));
     res.status(500).json({ success: false, message: 'Failed to create GCash payment.' });
   }
 };
