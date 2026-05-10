@@ -22,9 +22,9 @@ export default function PaymentCheckout({ bookingId, amount, bookingCode, onSucc
     setError('');
     try {
       const { data } = await api.post('/payments/gcash/create', {
-        booking_id: bookingId,
-        amount,
-      });
+  booking_id: bookingId,
+  amount: parseFloat(amount),
+});
       // Redirect to GCash checkout page
       window.location.href = data.checkout_url;
     } catch (err) {
