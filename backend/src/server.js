@@ -78,20 +78,9 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-const startServer = async () => {
-  try {
-    console.log('🔄 Starting database migration...');
-   const migrate = require('./../../database/migrate');
-    console.log('✅ Migrate module loaded:', typeof migrate);
-    await migrate();
-    console.log('✅ Database migrations completed');
-  } catch (err) {
-    console.error('⚠️ Migration error:', err.message);
-    console.error(err.stack);
-  }
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`✅ AirServe Pro API running on http://localhost:${PORT}`);
-    console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-  });
-};
-startServer();
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ AirServe Pro API running on http://localhost:${PORT}`);
+  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+});
