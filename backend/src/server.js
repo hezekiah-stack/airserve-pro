@@ -39,8 +39,7 @@ app.use('/api/notifications',require('./routes/notification.routes'));
 
 // ─── Health Check ─────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'AirServe Pro API is running', timestamp: new Date() });
-});
+ res.json({ status: 'OK', message: 'AirServe Pro API is running!', timestamp: new Date() });
 
 // TEMP: Test PayMongo
 app.get('/api/test-paymongo', async (req, res) => {
