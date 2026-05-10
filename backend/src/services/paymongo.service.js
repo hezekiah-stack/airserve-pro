@@ -88,10 +88,10 @@ const createGCashSource = async ({ amount, currency = 'PHP', description, bookin
               failed: redirectFailed,
             },
             metadata: { booking_id: String(bookingId) },
-            billing: {
-              name: customerName || 'Customer',
-              email: customerEmail || 'customer@airserve.com',
-            },
+           billing: {
+  name: 'AirServe Customer',
+  email: 'airservepro@gmail.com',
+},
           },
         },
       },
