@@ -2,12 +2,9 @@ require('dotenv').config({path:'../.env'});
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-
 const db = require('./config/db');
-
 const app = express();
 
-// ─── Middleware ───────────────────────────────────────────────
 app.use(cors({
   origin: [
     'http://localhost:5173',
@@ -20,28 +17,24 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Static files (uploaded images)
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// ─── Routes ───────────────────────────────────────────────────
-app.use('/api/auth',         require('./routes/auth.routes'));
-app.use('/api/users',        require('./routes/user.routes'));
-app.use('/api/services',     require('./routes/service.routes'));
-app.use('/api/bookings',     require('./routes/booking.routes'));
-app.use('/api/diagnostics',  require('./routes/diagnostic.routes'));
-app.use('/api/schedules',    require('./routes/schedule.routes'));
-app.use('/api/payments',     require('./routes/payment.routes'));
-app.use('/api/products',     require('./routes/product.routes'));
-app.use('/api/orders',       require('./routes/order.routes'));
-app.use('/api/reports',      require('./routes/report.routes'));
-app.use('/api/notifications',require('./routes/notification.routes'));
+app.use('/api/auth',          require('./routes/auth.routes'));
+app.use('/api/users',         require('./routes/user.routes'));
+app.use('/api/services',      require('./routes/service.routes'));
+app.use('/api/bookings',      require('./routes/booking.routes'));
+app.use('/api/diagnostics',   require('./routes/diagnostic.routes'));
+app.use('/api/schedules',     require('./routes/schedule.routes'));
+app.use('/api/payments',      require('./routes/payment.routes'));
+app.use('/api/products',      require('./routes/product.routes'));
+app.use('/api/orders',        require('./routes/order.routes'));
+app.use('/api/reports',       require('./routes/report.routes'));
+app.use('/api/notifications', require('./routes/notification.routes'));
 
-// ─── Health Check ─────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
- res.json({ status: 'OK', message: 'AirServe Pro API is running!', timestamp: new Date() });
+  res.json({ status: 'OK', message: 'AirServe Pro API is running!', timestamp: new Date() });
+});
 
-// TEMP: Test PayMongo
 app.get('/api/test-paymongo', async (req, res) => {
   const axios = require('axios');
   const key = process.env.PAYMONGO_SECRET_KEY;
@@ -75,7 +68,6 @@ app.get('/api/test-paymongo', async (req, res) => {
   }
 });
 
-// ─── Global Error Handler ─────────────────────────────────────
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.status || 500).json({
@@ -84,7 +76,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ─── Start Server ─────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
@@ -98,7 +89,6 @@ const startServer = async () => {
     console.error('⚠️ Migration error:', err.message);
     console.error(err.stack);
   }
-  
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ AirServe Pro API running on http://localhost:${PORT}`);
     console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
