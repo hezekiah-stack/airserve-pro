@@ -42,6 +42,40 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'AirServe Pro API is running', timestamp: new Date() });
 });
 
+// TEMP: Test PayMongo
+app.get('/api/test-paymongo', async (req, res) => {
+  const axios = require('axios');
+  const key = process.env.PAYMONGO_SECRET_KEY;
+  const auth = 'Basic ' + Buffer.from(key + ':').toString('base64');
+  try {
+    const response = await axios.post(
+      'https://api.paymongo.com/v1/sources',
+      {
+        data: {
+          attributes: {
+            amount: 50000,
+            currency: 'PHP',
+            type: 'gcash',
+            description: 'Test',
+            redirect: {
+              success: 'https://airserve-pro.vercel.app/payment/success',
+              failed: 'https://airserve-pro.vercel.app/payment/failed',
+            },
+            billing: {
+              name: 'Test Customer',
+              email: 'test@test.com',
+            },
+          },
+        },
+      },
+      { headers: { Authorization: auth, 'Content-Type': 'application/json' } }
+    );
+    res.json({ success: true, data: response.data });
+  } catch (err) {
+    res.json({ success: false, error: err.response?.data });
+  }
+});
+
 // ─── Global Error Handler ─────────────────────────────────────
 app.use((err, req, res, next) => {
   console.error(err.stack);
