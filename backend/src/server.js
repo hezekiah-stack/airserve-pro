@@ -81,7 +81,7 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   try {
     console.log('🔄 Starting database migration...');
-    const migrate = require('../database/migrate');
+   const migrate = require('./../../database/migrate');
     console.log('✅ Migrate module loaded:', typeof migrate);
     await migrate();
     console.log('✅ Database migrations completed');
