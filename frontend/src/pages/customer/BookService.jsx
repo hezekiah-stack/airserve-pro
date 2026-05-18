@@ -13,7 +13,7 @@ const AC_TYPES = [
   { label: 'Portable AC', value: 'portable' },
   { label: 'Central AC', value: 'central' },
 ];
-const PROBLEMS    = ['Not cooling', 'Leaking water', 'Strange noise', 'Bad smell', 'Not turning on', 'Routine only'];
+const PROBLEMS = ['Not cooling', 'Leaking water', 'Strange noise', 'Bad smell', 'Not turning on', 'Routine only'];
 const YEARS_OWNED = ['Less than 1 year', '1–3 years', '3–5 years', '5+ years', 'New unit'];
 const LOCATIONS = [
   { label: 'Residential (Home)', value: 'residential' },
@@ -25,15 +25,14 @@ export default function BookService() {
   const [step, setStep]         = useState(1);
   const [services, setServices] = useState([]);
   const [slots, setSlots]       = useState([]);
-  const [booking, setBooking]   = useState(null); // created booking
+  const [booking, setBooking]   = useState(null);
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
   const navigate = useNavigate();
 
-  // Form state
   const [selectedService, setSelectedService] = useState(null);
   const [diag, setDiag] = useState({
-    ac_type: '', problem: '', years_owned: '', location_type: '', previously_repaired: false, notes: '',
+    ac_type: '', problem: [], years_owned: '', location_type: '', previously_repaired: false, notes: '',
   });
   const [schedule, setSchedule] = useState({ date: '', time: '', address: '' });
 
@@ -50,6 +49,13 @@ export default function BookService() {
   const goNext = () => setStep(s => s + 1);
   const goBack = () => setStep(s => s - 1);
 
+  const toggleProblem = (p) => {
+    const updated = diag.problem.includes(p)
+      ? diag.problem.filter(x => x !== p)
+      : [...diag.problem, p];
+    setDiag({ ...diag, problem: updated });
+  };
+
   const submitBooking = async () => {
     setLoading(true);
     setError('');
@@ -61,7 +67,7 @@ export default function BookService() {
         address:        schedule.address,
         diagnostic: {
           ac_type:             diag.ac_type,
-          problem:             diag.problem,
+          problem:             diag.problem.join(', '),
           years_owned:         diag.years_owned,
           location_type:       diag.location_type,
           previously_repaired: diag.previously_repaired,
@@ -69,7 +75,7 @@ export default function BookService() {
         },
       });
       setBooking(data);
-      goNext(); // go to payment step
+      goNext();
     } catch (err) {
       setError(err.response?.data?.message || 'Booking failed. Please try again.');
     } finally {
@@ -139,19 +145,25 @@ export default function BookService() {
           <div className="card" style={{ marginBottom: '1rem' }}>
             <div className="card-title">1. What type of air conditioner do you have?</div>
             <div className="diag-opts">
-            {AC_TYPES.map(t => (
-  <div key={t.value} className={`diag-opt${diag.ac_type === t.value ? ' selected' : ''}`}
-  onClick={() => setDiag({ ...diag, ac_type: t.value })}>{t.label}</div>
-))}
+              {AC_TYPES.map(t => (
+                <div key={t.value}
+                  className={`diag-opt${diag.ac_type === t.value ? ' selected' : ''}`}
+                  onClick={() => setDiag({ ...diag, ac_type: t.value })}>
+                  {t.label}
+                </div>
+              ))}
             </div>
           </div>
 
           <div className="card" style={{ marginBottom: '1rem' }}>
-            <div className="card-title">2. What is the main problem?</div>
+            <div className="card-title">2. What are the problems? (Select all that apply)</div>
             <div className="diag-opts">
               {PROBLEMS.map(p => (
-                <div key={p} className={`diag-opt${diag.problem === p ? ' selected' : ''}`}
-                  onClick={() => setDiag({ ...diag, problem: p })}>{p}</div>
+                <div key={p}
+                  className={`diag-opt${diag.problem.includes(p) ? ' selected' : ''}`}
+                  onClick={() => toggleProblem(p)}>
+                  {p}
+                </div>
               ))}
             </div>
           </div>
@@ -171,7 +183,7 @@ export default function BookService() {
                 <select className="form-control" value={diag.location_type}
                   onChange={e => setDiag({ ...diag, location_type: e.target.value })}>
                   <option value="">Select...</option>
-                 {LOCATIONS.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
+                  {LOCATIONS.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
                 </select>
               </div>
             </div>
@@ -181,7 +193,9 @@ export default function BookService() {
                 {['Yes', 'No'].map(v => (
                   <div key={v}
                     className={`diag-opt${diag.previously_repaired === (v === 'Yes') ? ' selected' : ''}`}
-                    onClick={() => setDiag({ ...diag, previously_repaired: v === 'Yes' })}>{v}</div>
+                    onClick={() => setDiag({ ...diag, previously_repaired: v === 'Yes' })}>
+                    {v}
+                  </div>
                 ))}
               </div>
             </div>
@@ -197,7 +211,7 @@ export default function BookService() {
           <div className="step-actions">
             <button className="btn btn-outline" onClick={goBack}>← Back</button>
             <button className="btn btn-primary" onClick={goNext}
-              disabled={!diag.ac_type || !diag.problem}>Continue →</button>
+              disabled={!diag.ac_type || diag.problem.length === 0}>Continue →</button>
           </div>
         </div>
       )}
@@ -221,7 +235,6 @@ export default function BookService() {
                   onChange={e => setSchedule({ ...schedule, address: e.target.value })} />
               </div>
             </div>
-
             {schedule.date && (
               <>
                 <div className="card-title" style={{ marginTop: '1rem' }}>Available Time Slots</div>
@@ -238,7 +251,6 @@ export default function BookService() {
               </>
             )}
           </div>
-
           <div className="step-actions">
             <button className="btn btn-outline" onClick={goBack}>← Back</button>
             <button className="btn btn-primary" onClick={submitBooking}
